@@ -8,6 +8,8 @@ const mongoose = require("mongoose");
 const client = new Client({ intents: GatewayIntentBits.Guilds });
 
 client.commands = new Collection();
+client.buttons = new Collection();
+
 client.commandArray = [];
 
 const functionFolders = fs.readdirSync(`./src/functions`);
@@ -27,7 +29,12 @@ for (const folder of functionFolders) {
 client
   .login(process.env.BOT_TOKEN)
   .then(() => {
-    client.handleEvents();
-    client.handleCommands();
+    try {
+      client.handleEvents();
+      client.handleCommands();
+      client.handleComponents();
+    } catch (err) {
+      console.error(err);
+    }
   })
   .catch((err) => console.log(err));
