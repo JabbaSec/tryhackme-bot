@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const ProfileSchema = new mongoose.Schema({
   discordId: String,
-  thmUsername: String,
+  username: String,
   token: String,
-  subscriptionStatus: Boolean,
+  subscribed: Boolean,
   rank: String,
   points: String,
   level: String,
+  avatar: String,
 });
 
 module.exports = mongoose.model("Profile", ProfileSchema);

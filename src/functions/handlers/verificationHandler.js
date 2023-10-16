@@ -2,8 +2,23 @@ const UserProfile = require("../../events/mongo/schema/ProfileSchema");
 
 // Map roles to their IDs
 const levelToRoleMap = {
-  1: "1163058274296410153",
-  2: "1159486602242969662",
+  1337: process.env.LEVEL_EVENT,
+  999: process.env.LEVEL_BUG_HUNTER,
+  998: process.env.LEVEL_13,
+  997: process.env.LEVEL_13,
+  13: process.env.LEVEL_13,
+  12: process.env.LEVEL_12,
+  11: process.env.LEVEL_11,
+  10: process.env.LEVEL_10,
+  9: process.env.LEVEL_9,
+  8: process.env.LEVEL_8,
+  7: process.env.LEVEL_7,
+  6: process.env.LEVEL_6,
+  5: process.env.LEVEL_5,
+  4: process.env.LEVEL_4,
+  3: process.env.LEVEL_3,
+  2: process.env.LEVEL_2,
+  1: process.env.LEVEL_1,
 };
 
 module.exports = (client) => {
@@ -27,24 +42,18 @@ module.exports = (client) => {
         }
 
         // Retrieve the user's data from the API
-        const exampleData = {
-          discordId: "exampleDiscordId",
-          thmUsername: "exampleThmUsername",
-          token: "exampleToken",
-          subscriptionStatus: true,
-          rank: "exampleRank",
-          points: "examplePoints",
-          level: 1,
-        };
+        const apiData = await client.handleAPI.get_user_by_token(
+          userData.token
+        );
 
-        if (userData.level !== exampleData.level) {
+        if (userData.level !== apiData.level) {
           guild.members.fetch(userData.discordId).then((member) => {
-            member.roles.add(getRolesForLevel(exampleData.level));
+            member.roles.add(getRolesForLevel(apiData.level));
             member.roles.remove(getRolesForLevel(parseInt(userData.level)));
           });
         }
 
-        if (exampleData.subscriptionStatus) {
+        if (apiData.subscriptionStatus) {
           guild.members.fetch(userData.discordId).then((member) => {
             member.roles.add(process.env.SUBSCRIBER_ROLE_ID);
           });
@@ -56,12 +65,12 @@ module.exports = (client) => {
 
         const updatedData = {
           $set: {
-            thmUsername: exampleData.thmUsername,
-            token: exampleData.token,
-            subscriptionStatus: exampleData.subscriptionStatus,
-            rank: exampleData.rank,
-            points: exampleData.points,
-            level: exampleData.level,
+            thmUsername: apiData.thmUsername,
+            token: apiData.token,
+            subscriptionStatus: apiData.subscriptionStatus,
+            rank: apiData.rank,
+            points: apiData.points,
+            level: apiData.level,
           },
         };
 
@@ -81,5 +90,6 @@ module.exports = (client) => {
 };
 
 function getRolesForLevel(level) {
+  console.log(levelToRoleMap[level]);
   return levelToRoleMap[level] || [];
 }
