@@ -1,27 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-
+const { SlashCommandBuilder } = require("discord.js");
 const UserProfile = require("../../events/mongo/schema/ProfileSchema");
-
-// Map roles to their IDs
-const levelToRoleMap = {
-  1337: process.env.LEVEL_EVENT,
-  999: process.env.LEVEL_BUG_HUNTER,
-  998: process.env.LEVEL_13,
-  997: process.env.LEVEL_13,
-  13: process.env.LEVEL_13,
-  12: process.env.LEVEL_12,
-  11: process.env.LEVEL_11,
-  10: process.env.LEVEL_10,
-  9: process.env.LEVEL_9,
-  8: process.env.LEVEL_8,
-  7: process.env.LEVEL_7,
-  6: process.env.LEVEL_6,
-  5: process.env.LEVEL_5,
-  4: process.env.LEVEL_4,
-  3: process.env.LEVEL_3,
-  2: process.env.LEVEL_2,
-  1: process.env.LEVEL_1,
-};
+const { fetchMember } = require("../../utils/memberUtils");
+const { assignRoles } = require("../../utils/roleUtils");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -40,13 +20,19 @@ module.exports = {
 
     let userProfile = await UserProfile.findOne({ token });
 
-    if (userProfile)
+    if (userProfile) {
       return interaction.reply({
         content: "You are already verified!",
         ephemeral: true,
       });
+    }
 
     const tokenApiData = await client.handleAPI.get_user_by_token(token);
+
+    if (!tokenApiData || !tokenApiData.username) {
+      console.error("Received invalid data from the API:", tokenApiData);
+      return;
+    }
 
     const userApiData = await client.handleAPI.get_user_data(
       tokenApiData.username
@@ -65,18 +51,9 @@ module.exports = {
 
     await verify.save().catch(console.error);
 
-    guild.members.fetch(interaction.user.id).then((member) => {
-      member.roles.add(getRolesForLevel(tokenApiData.level));
-    });
-
-    if (tokenApiData.subscriptionStatus == "1") {
-      guild.members.fetch(interaction.user.id).then((member) => {
-        member.roles.add(process.env.SUBSCRIBER_ROLE_ID);
-      });
-    } else {
-      guild.members.fetch(interaction.user.id).then((member) => {
-        member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
-      });
+    const member = await fetchMember(guild, interaction.user.id);
+    if (member) {
+      assignRoles(member, tokenApiData);
     }
 
     await interaction.reply({
@@ -85,7 +62,3 @@ module.exports = {
     });
   },
 };
-
-function getRolesForLevel(level) {
-  return levelToRoleMap[level] || [];
-}
