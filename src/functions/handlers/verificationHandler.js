@@ -19,24 +19,37 @@ module.exports = (client) => {
         profile.username
       );
 
-      if (!userApiData || !userApiData.userRank) {
+      if (isValidApiData(userApiData)) {
+        const hasUpdated = updateProfileFromApiData(profile, userApiData);
+        if (hasUpdated) {
+          assignRoles(member, userApiData);
+          await profile.save().catch(console.error);
+          console.log(`${profile.discordId} has been updated!`);
+        } else {
+          console.log(`${profile.discordId} is up-to-date!`);
+        }
+      } else {
         console.error(
           "Received invalid data from the API for user:",
           profile.username
         );
-        continue;
       }
-
-      // Update roles based on API data
-      assignRoles(member, userApiData);
-
-      // Update user's data in database
-      profile.subscribed = userApiData.subscribed == "1" ? true : false;
-      profile.rank = userApiData.userRank;
-      profile.points = userApiData.points;
-      profile.level = userApiData.level;
-      profile.avatar = userApiData.avatar;
-      await profile.save().catch(console.error);
     }
   };
 };
+
+function isValidApiData(data) {
+  return data && data.userRank;
+}
+
+function updateProfileFromApiData(profile, apiData) {
+  const { subscribed, userRank, points, level, avatar } = apiData;
+  profile.subscribed = subscribed == "1";
+  profile.rank = userRank;
+  profile.points = points;
+  profile.level = level;
+  profile.avatar = avatar;
+
+  // Check if any field has been modified
+  return profile.isModified();
+}
