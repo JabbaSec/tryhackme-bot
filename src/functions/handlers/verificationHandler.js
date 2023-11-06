@@ -15,9 +15,7 @@ module.exports = (client) => {
         continue;
       }
 
-      const userApiData = await client.handleAPI.get_user_data(
-        profile.username
-      );
+      const userApiData = await client.handleAPI.get_user_data(profile.token);
 
       if (isValidApiData(userApiData)) {
         const hasUpdated = updateProfileFromApiData(profile, userApiData);
@@ -31,7 +29,7 @@ module.exports = (client) => {
       } else {
         console.error(
           "Received invalid data from the API for user:",
-          profile.username
+          profile.discordId
         );
       }
     }
@@ -39,17 +37,16 @@ module.exports = (client) => {
 };
 
 function isValidApiData(data) {
-  return data && data.userRank;
+  return data && data.success;
 }
 
 function updateProfileFromApiData(profile, apiData) {
-  const { subscribed, userRank, points, level, avatar } = apiData;
-  profile.subscribed = subscribed == "1";
-  profile.rank = userRank;
+  const { subscribed, usersRank, points, level, avatar } = apiData;
+  profile.subscribed = subscribed === 1;
+  profile.rank = usersRank;
   profile.points = points;
   profile.level = level;
   profile.avatar = avatar;
 
-  // Check if any field has been modified
   return profile.isModified();
 }

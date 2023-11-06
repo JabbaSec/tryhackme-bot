@@ -20,13 +20,24 @@ const levelToRoleMap = {
 
 function assignRoles(member, apiData) {
   if (apiData.level) {
-    const role = getRolesForLevel(apiData.level);
-    if (role) {
-      member.roles.add(role);
+    const roleToAdd = getRolesForLevel(apiData.level);
+
+    member.roles.add(process.env.VERIFIED_ROLE_ID);
+
+    // Remove other level roles
+    for (const role of Object.values(levelToRoleMap)) {
+      if (member.roles.cache.has(role) && role !== roleToAdd) {
+        member.roles.remove(role);
+      }
+    }
+
+    // Add the new role
+    if (roleToAdd) {
+      member.roles.add(roleToAdd);
     }
   }
 
-  if (apiData.subscriptionStatus == "1") {
+  if (apiData.subscribed == 1) {
     member.roles.add(process.env.SUBSCRIBER_ROLE_ID);
   } else {
     member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
