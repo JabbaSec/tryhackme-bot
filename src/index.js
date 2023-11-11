@@ -45,7 +45,7 @@ client
       // Sync roles every 12 hours
       setInterval(() => {
         client.roleSync(client);
-      }, 10000); // 43200000
+      }, 43200000); // 43200000
     } catch (err) {
       console.error(err);
     }

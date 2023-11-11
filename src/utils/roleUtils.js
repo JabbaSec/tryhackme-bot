@@ -44,6 +44,21 @@ function assignRoles(member, apiData) {
   }
 }
 
+function removeRoles(member) {
+  // Remove verified role
+  member.roles.remove(process.env.VERIFIED_ROLE_ID);
+
+  // Remove subscriber role
+  member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
+
+  // Remove level roles
+  for (const role of Object.values(levelToRoleMap)) {
+    if (member.roles.cache.has(role)) {
+      member.roles.remove(role);
+    }
+  }
+}
+
 function getRolesForLevel(level) {
   return levelToRoleMap[level] || null;
 }
@@ -51,4 +66,5 @@ function getRolesForLevel(level) {
 module.exports = {
   assignRoles,
   getRolesForLevel,
+  removeRoles,
 };
