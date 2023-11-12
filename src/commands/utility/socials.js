@@ -5,46 +5,98 @@ module.exports = {
     .setName("socials")
     .setDescription("Get the latest information for TryHackMe's social media!")
     .addSubcommand((subcommand) =>
-      subcommand.setName("github").setDescription("Get the bot's GitHub link.")
+      subcommand
+        .setName("github")
+        .setDescription("Get the bot's GitHub link.")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("twitter")
         .setDescription("Get TryHackMe's official Twitter!")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("reddit")
         .setDescription("Get the link to our amazing subreddit!")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("website")
         .setDescription("You should know our website by now!")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("discord")
         .setDescription("Looking to invite people to the Discord server?")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("blog")
         .setDescription("Look at the awesome resources written by TryHackMe!")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("shop")
         .setDescription("Get some awesome swag to show off to your friends.")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("email")
         .setDescription("TryHackMe's support email address.")
+        .addUserOption((option) =>
+          option
+            .setName("mention")
+            .setDescription("Optionally mention a user with the response.")
+            .setRequired(false)
+        )
     ),
 
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
+    const user = interaction.options.getUser("mention");
+
     let text;
     let description;
 
@@ -101,6 +153,8 @@ module.exports = {
       })
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed] });
+    const messageContent = user ? `${user}` : "";
+
+    await interaction.reply({ content: messageContent, embeds: [embed] });
   },
 };
