@@ -41,6 +41,7 @@ client
       client.handleEvents();
       client.handleCommands();
       client.handleComponents();
+      client.roleSync(client);
 
       // Sync roles every 12 hours
       setInterval(() => {

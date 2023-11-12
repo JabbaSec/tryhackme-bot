@@ -50,7 +50,7 @@ module.exports = {
 
     switch (subcommand) {
       case "github":
-        text = "https://github.com/thm-community/THM-Bot/";
+        text = "https://github.com/JabbaSec/tryhackme";
         description = "Get the bot's GitHub link.";
         break;
       case "twitter":

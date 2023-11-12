@@ -33,6 +33,7 @@ module.exports = (client) => {
         );
       }
     }
+    console.log("Role sync finished!");
   };
 };
 
