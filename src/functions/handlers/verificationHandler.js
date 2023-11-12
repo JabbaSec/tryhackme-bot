@@ -15,7 +15,7 @@ module.exports = (client) => {
         continue;
       }
 
-      const userApiData = await client.handleAPI.get_user_data(profile.token);
+      const userApiData = await client.handleAPI.get_token_data(profile.token);
 
       if (isValidApiData(userApiData)) {
         const hasUpdated = updateProfileFromApiData(profile, userApiData);

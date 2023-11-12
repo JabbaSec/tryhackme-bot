@@ -41,7 +41,7 @@ module.exports = {
     }
 
     const userApiData = await client.handleAPI
-      .get_user_data(token)
+      .get_token_data(token)
       .catch((error) => {
         console.error("Received invalid data from the API:", error);
         return interaction.reply({

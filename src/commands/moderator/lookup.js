@@ -35,6 +35,12 @@ module.exports = {
     let userProfile;
     notFoundMessage = "No Discord account linked with this TryHackMe token.";
 
+    const hasPermission = await client.checkPermissions(
+      interaction,
+      "Moderator"
+    );
+    if (!hasPermission) return;
+
     if (subcommand === "token") {
       const token = interaction.options.getString("token");
       userProfile = await UserProfile.findOne({ token }).exec();

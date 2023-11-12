@@ -6,12 +6,22 @@ const API_TOKEN = "https://tryhackme.com/tokens/discord/";
 const API_LEADERBOARD = "https://tryhackme.com/api/leaderboards";
 const API_STATS = "https://tryhackme.com/api/site-stats";
 const API_HACKTIVITIES = "https://tryhackme.com/api/hacktivities";
+const API_USER = "https://tryhackme.com/api/discord/user/";
 
 module.exports = (client) => {
   client.handleAPI = {
-    get_user_data: async (token) => {
+    get_token_data: async (token) => {
       try {
         const response = await axios.get(API_TOKEN + token);
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    get_user_data: async (username) => {
+      try {
+        const response = await axios.get(API_USER + username);
         return response.data;
       } catch (error) {
         console.error(error);
