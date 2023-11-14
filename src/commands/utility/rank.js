@@ -16,6 +16,17 @@ module.exports = {
     const username = interaction.options.getString("username");
     let userProfile;
 
+    // Check character limit
+    if (username) {
+      if (username.length > 30) {
+        return await interaction.reply({
+          content:
+            "Your input exceeds the username character limit. Please try again.",
+          ephemeral: true,
+        });
+      }
+    }
+
     if (username) {
       // If a username is provided, check the database first
       userProfile = await UserProfile.findOne({ username }).exec();
@@ -23,6 +34,15 @@ module.exports = {
         // If the user is not in the database, use the get_user_data function
         userProfile = await client.handleAPI.get_user_data(username);
         if (!userProfile) {
+          await interaction.reply({
+            content: "User not found.",
+            ephemeral: true,
+          });
+          return;
+        } else if (
+          userProfile.userRank == 0 ||
+          userProfile.points === "undefined"
+        ) {
           await interaction.reply({
             content: "User not found.",
             ephemeral: true,
@@ -37,7 +57,7 @@ module.exports = {
       if (!userProfile) {
         await interaction.reply({
           content:
-            'You are not in the database. Or supply a user by selecting the "username" field.',
+            "It does not look like you are verified. Use `/verfiy` to verify your TryHackMe account, or supply a username.",
           ephemeral: true,
         });
         return;

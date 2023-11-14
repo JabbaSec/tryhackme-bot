@@ -1,4 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  PermissionFlagsBits,
+} = require("discord.js");
+
 const UserProfile = require("../../events/mongo/schema/ProfileSchema");
 
 const axios = require("axios");
@@ -7,6 +12,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("lookup")
     .setDescription("Looks up a linked account by token or user.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("token")
