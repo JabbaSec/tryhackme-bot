@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const client = new Client({
   intents: [
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildModeration,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.Guilds,
     GatewayIntentBits.MessageContent,

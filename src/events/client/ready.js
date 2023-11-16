@@ -5,7 +5,7 @@ module.exports = {
   once: true,
 
   async execute(client) {
-    guild = client.guilds.cache.get("990680847713697873");
+    guild = client.guilds.cache.get(process.env.GUILD_ID);
 
     console.log(`${client.user.username} is ready`);
 
