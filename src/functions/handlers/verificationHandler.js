@@ -11,7 +11,7 @@ module.exports = (client) => {
       const member = await fetchMember(guild, profile.discordId);
 
       if (member === null) {
-        await UserProfile.findOneAndDelete({ discordId: profile.discordId });
+        await UserProfile.deleteOne({ discordId: profile.discordId });
         console.log(`${profile.discordId} has been removed from the Database.`);
         continue;
       }
