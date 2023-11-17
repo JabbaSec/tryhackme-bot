@@ -43,10 +43,10 @@ client
       client.handleComponents();
       client.roleSync(client);
 
-      // Sync roles every 12 hours
+      // Sync roles every 24 hours
       setInterval(() => {
         client.roleSync(client);
-      }, 43200000); // 43200000
+      }, 86400000); // 86,400,000
     } catch (err) {
       console.error(err);
     }
