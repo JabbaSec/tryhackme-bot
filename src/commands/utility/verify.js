@@ -78,8 +78,6 @@ function updateUserProfile(userProfile, userApiData, token) {
   userProfile.username = userApiData.username;
   userProfile.token = token;
   userProfile.subscribed = userApiData.subscribed === 1;
-  userProfile.rank = userApiData.usersRank;
-  userProfile.points = userApiData.points;
   userProfile.level = userApiData.level;
   userProfile.avatar = userApiData.avatar;
 

@@ -5,8 +5,6 @@ const ProfileSchema = new mongoose.Schema({
   username: String,
   token: String,
   subscribed: Boolean,
-  rank: String,
-  points: String,
   level: String,
   avatar: String,
 });

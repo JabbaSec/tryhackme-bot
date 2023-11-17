@@ -9,7 +9,7 @@ module.exports = {
       option
         .setName("username")
         .setDescription("The username to retrieve the rank for.")
-        .setRequired(false)
+        .setRequired(true)
     ),
 
   async execute(interaction, client) {
@@ -27,41 +27,23 @@ module.exports = {
       }
     }
 
-    if (username) {
-      // If a username is provided, check the database first
-      userProfile = await UserProfile.findOne({ username }).exec();
-      if (!userProfile) {
-        // If the user is not in the database, use the get_user_data function
-        userProfile = await client.handleAPI.get_user_data(username);
-        if (!userProfile) {
-          await interaction.reply({
-            content: "User not found.",
-            ephemeral: true,
-          });
-          return;
-        } else if (
-          userProfile.userRank == 0 ||
-          userProfile.points === "undefined"
-        ) {
-          await interaction.reply({
-            content: "User not found.",
-            ephemeral: true,
-          });
-          return;
-        }
-      }
-    } else {
-      // If no username is provided, look up by the user's Discord ID
-      const discordId = interaction.user.id;
-      userProfile = await UserProfile.findOne({ discordId }).exec();
-      if (!userProfile) {
-        await interaction.reply({
-          content:
-            "It does not look like you are verified. Use `/verfiy` to verify your TryHackMe account, or supply a username.",
-          ephemeral: true,
-        });
-        return;
-      }
+    // If the user is not in the database, use the get_user_data function
+    userProfile = await client.handleAPI.get_user_data(username);
+    if (!userProfile) {
+      await interaction.reply({
+        content: "User not found.",
+        ephemeral: true,
+      });
+      return;
+    } else if (
+      userProfile.userRank == 0 ||
+      userProfile.points === "undefined"
+    ) {
+      await interaction.reply({
+        content: "User not found.",
+        ephemeral: true,
+      });
+      return;
     }
 
     const tryhackme_url = "https://tryhackme.com/p/";
