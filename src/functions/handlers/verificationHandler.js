@@ -46,8 +46,8 @@ function updateProfileFromApiData(profile, apiData) {
   const { username, subscribed, usersRank, points, level, avatar } = apiData;
   profile.username = username;
   profile.subscribed = subscribed === 1;
-  profile.rank = usersRank;
-  profile.points = points;
+  // profile.rank = usersRank;
+  // profile.points = points;
   profile.level = level;
   profile.avatar = avatar;
 
