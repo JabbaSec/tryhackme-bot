@@ -84,7 +84,7 @@ module.exports = {
           inline: true,
         },
         { name: "Discord ID", value: userProfile.discordId, inline: true },
-        { name: "THM Token", value: token, inline: true },
+        { name: "THM Token", value: userProfile.token, inline: true },
         {
           name: "THM Username",
           value: `[${userProfile.username}](<https://tryhackme.com/p/${userProfile.username}>)`,

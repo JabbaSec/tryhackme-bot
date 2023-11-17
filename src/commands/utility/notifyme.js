@@ -6,19 +6,11 @@ module.exports = {
     .setDescription("Toggle announcements notifications."),
 
   async execute(interaction, client) {
+    let content;
+
     const roleID = process.env.ANNOUNCEMENTS_ROLE_ID;
     const member = interaction.member;
-    const role = member.guild.roles.cache.find((r) => r.id === roleID);
 
-    if (!role) {
-      await interaction.reply({
-        content: "The announcements role does not exist.",
-        ephemeral: true,
-      });
-      return;
-    }
-
-    let content;
     if (member.roles.cache.has(roleID)) {
       await member.roles.remove(roleID);
       content = "You will no longer receive announcements notifications.";
