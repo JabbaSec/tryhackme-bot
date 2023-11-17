@@ -110,7 +110,7 @@ module.exports = {
       .setTitle(`Account Unlink`)
       .setFields([
         { name: "User", value: `<@${discordId}>`, inline: true },
-        { name: "Token", value: `removed_for_dev`, inline: true },
+        { name: "Token", value: token, inline: true },
       ])
       .setTimestamp();
 

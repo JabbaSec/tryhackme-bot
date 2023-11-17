@@ -84,7 +84,7 @@ module.exports = {
           inline: true,
         },
         { name: "Discord ID", value: userProfile.discordId, inline: true },
-        { name: "THM Token", value: `removed_for_dev`, inline: true },
+        { name: "THM Token", value: token, inline: true },
         {
           name: "THM Username",
           value: `[${userProfile.username}](<https://tryhackme.com/p/${userProfile.username}>)`,
@@ -103,6 +103,6 @@ module.exports = {
         },
       ]);
 
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.reply({ embeds: [embed], ephemeral: false });
   },
 };
