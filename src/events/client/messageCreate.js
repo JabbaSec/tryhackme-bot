@@ -1,4 +1,4 @@
-const TOKEN_PATTERN = /[a-f0-9]{24}/;
+const TOKEN_PATTERN = /[a-zA-Z0-9]{24}/;
 
 module.exports = {
   name: "messageCreate",

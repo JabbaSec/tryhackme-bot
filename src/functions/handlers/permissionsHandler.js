@@ -2,6 +2,14 @@ module.exports = (client) => {
   client.checkPermissions = async (interaction, role) => {
     const member = interaction.member;
 
+    if (!member) {
+      await interaction.reply({
+        content: `There was an issue getting your user. Please try again.`,
+        empheral: true,
+      });
+      return false;
+    }
+
     if (member.id === process.env.BOT_DEVELOPER_ID) return true;
 
     const verified = member.roles.cache.has(process.env.VERIFIED_ROLE_ID);
