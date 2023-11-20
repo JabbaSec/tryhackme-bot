@@ -14,7 +14,12 @@ module.exports = {
 
   async execute(interaction, client) {
     const username = interaction.options.getString("username");
+
     let userProfile;
+    let ephemeralCheck = true;
+
+    if (interaction.channel.id === process.env.BOT_COMMANDS)
+      ephemeralCheck = false;
 
     // Check character limit
     if (username) {
@@ -72,6 +77,6 @@ module.exports = {
       )
       .setThumbnail(userProfile.avatar);
 
-    await interaction.reply({ embeds: [rankEmbed] });
+    await interaction.reply({ embeds: [rankEmbed], ephemeral: ephemeralCheck });
   },
 };
