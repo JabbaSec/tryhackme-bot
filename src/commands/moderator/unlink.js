@@ -42,7 +42,6 @@ module.exports = {
     const token = interaction.options.getString("token");
     const user = interaction.options.getUser("user");
 
-    let discordId;
     let userProfile;
 
     const hasPermission = await client.checkPermissions(
@@ -65,14 +64,12 @@ module.exports = {
             ephemeral: true,
           });
         }
-        discordId = userProfile.discordId;
 
         // Remove the user's data from the database
         await UserProfile.deleteOne({ token });
         break;
 
       case "user":
-        discordId = user.id;
         userProfile = await UserProfile.findOne({ discordId: user.id });
 
         // Check if the user profile exists
@@ -85,11 +82,15 @@ module.exports = {
 
         // Remove the user's data from the database
         await UserProfile.deleteOne({ discordId: user.id });
+        break;
+
+      default:
+        break;
     }
 
     // Remove roles from the user if they have them
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
-    const member = await fetchMember(guild, discordId);
+    const member = await fetchMember(guild, userProfile.discordId);
 
     if (member) {
       removeRoles(member);
@@ -97,7 +98,7 @@ module.exports = {
 
     // Send a confirmation message with the user mention
     await interaction.reply({
-      content: `<@${discordId}> has been successfully unlinked.`,
+      content: `<@${userProfile.discordId}> has been successfully unlinked.`,
       ephemeral: true,
     });
 
@@ -109,8 +110,8 @@ module.exports = {
       .setColor("#FFA500")
       .setTitle(`Account Unlink`)
       .setFields([
-        { name: "User", value: `<@${discordId}>`, inline: true },
-        { name: "Token", value: token, inline: true },
+        { name: "User", value: `<@${userProfile.discordId}>`, inline: true },
+        { name: "Token", value: userProfile.token, inline: true },
       ])
       .setTimestamp();
 
