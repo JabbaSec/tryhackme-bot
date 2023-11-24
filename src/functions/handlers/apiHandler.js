@@ -38,6 +38,15 @@ module.exports = (client) => {
       }
     },
 
+    get_site_statistics: async () => {
+      try {
+        const response = await axios.get(API_STATS);
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
     get_public_rooms: async (filter_type = null) => {
       const query = filter_type ? `?type={filter_type}` : "";
       try {
