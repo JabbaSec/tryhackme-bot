@@ -18,6 +18,11 @@ module.exports = (client) => {
 
       const userApiData = await client.handleAPI.get_token_data(profile.token);
 
+      if (userApiData.response == 429) {
+        console.log("Too many requests, skipping verification...");
+        break;
+      }
+
       if (isValidApiData(userApiData)) {
         const hasUpdated = updateProfileFromApiData(profile, userApiData);
         if (hasUpdated) {
