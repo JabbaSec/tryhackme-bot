@@ -14,69 +14,70 @@ module.exports = {
 
   async execute(interaction, client) {
     const username = interaction.options.getString("username");
-
-    let userProfile;
     let ephemeralCheck = true;
 
-    if (interaction.channel.id === process.env.BOT_COMMANDS)
+    if (
+      interaction.channel &&
+      interaction.channel.id === process.env.BOT_COMMANDS
+    )
       ephemeralCheck = false;
 
-    // Check character limit
-    if (username) {
-      if (username.length > 30) {
-        return await interaction.reply({
-          content:
-            "Your input exceeds the username character limit. Please try again.",
+    if (username && username.length > 30) {
+      return await interaction.reply({
+        content:
+          "Your input exceeds the username character limit. Please try again.",
+        ephemeral: true,
+      });
+    }
+
+    try {
+      const userProfile = await client.handleAPI.get_user_data(username);
+      if (
+        !userProfile ||
+        userProfile.userRank == 0 ||
+        userProfile.points === "undefined"
+      ) {
+        return interaction.reply({
+          content: "User not found.",
           ephemeral: true,
         });
       }
-    }
 
-    // If the user is not in the database, use the get_user_data function
-    userProfile = await client.handleAPI.get_user_data(username);
-    if (!userProfile) {
+      const tryhackme_url = "https://tryhackme.com/p/";
+      const rankEmbed = new EmbedBuilder()
+        .setColor("#5865F2")
+        .setTitle(userProfile.username || username)
+        .addFields(
+          {
+            name: "Leaderboard Position",
+            value: `${userProfile.rank || userProfile.userRank}`,
+          },
+          {
+            name: "Username",
+            value: `[${userProfile.username || username}](${tryhackme_url}${
+              userProfile.username || username
+            })`,
+            inline: true,
+          },
+          { name: "Points", value: String(userProfile.points), inline: true },
+          {
+            name: "Subscribed?",
+            value: userProfile.subscribed ? "Yes" : "No",
+            inline: true,
+          }
+        )
+        .setThumbnail(userProfile.avatar);
+
       await interaction.reply({
-        content: "User not found.",
+        embeds: [rankEmbed],
+        ephemeral: ephemeralCheck,
+      });
+    } catch (error) {
+      console.error("Error in rank command:", error);
+      await interaction.reply({
+        content: "An error occurred while processing your request.",
         ephemeral: true,
       });
-      return;
-    } else if (
-      userProfile.userRank == 0 ||
-      userProfile.points === "undefined"
-    ) {
-      await interaction.reply({
-        content: "User not found.",
-        ephemeral: true,
-      });
-      return;
     }
-
-    const tryhackme_url = "https://tryhackme.com/p/";
-
-    const rankEmbed = new EmbedBuilder()
-      .setColor("#5865F2")
-      .setTitle(userProfile.username || username) // Use the provided username or the one from the database
-      .addFields(
-        {
-          name: "Leaderboard Position",
-          value: `${userProfile.rank || userProfile.userRank}`,
-        },
-        {
-          name: "Username",
-          value: `[${userProfile.username || username}](${tryhackme_url}${
-            userProfile.username || username
-          })`,
-          inline: true,
-        },
-        { name: "Points", value: String(userProfile.points), inline: true },
-        {
-          name: "Subscribed?",
-          value: userProfile.subscribed ? "Yes" : "No",
-          inline: true,
-        }
-      )
-      .setThumbnail(userProfile.avatar);
-
-    await interaction.reply({ embeds: [rankEmbed], ephemeral: ephemeralCheck });
   },
 };
