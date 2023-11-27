@@ -14,9 +14,16 @@ module.exports = {
         .setName("number")
         .setDescription("The rule to be quoted.")
         .setRequired(true)
+    )
+    .addUserOption((option) =>
+      option
+        .setName("mention")
+        .setDescription("Optionally mention a user with the response.")
+        .setRequired(false)
     ),
   async execute(interaction, client) {
     const number = interaction.options.getInteger("number");
+    const mention = interaction.options.getUser("mention");
 
     const hasPermission = await client.checkPermissions(
       interaction,
@@ -86,23 +93,19 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor("#5865F2")
-      // .setTitle(`<#${process.env.RULES}>`)
-      .setTitle(`<#${process.env.RULES}> ${number} - ${text}`)
-      .setDescription(description)
-      // .addFields({
-      //   name: `<#${process.env.RULES}>`,
-      //   value: description,
-      // })
-      // .addFields({
-      //   name: `Rule ${number} - ${text}`,
-      //   value: description,
-      // })
+      .setTitle(`<#${process.env.RULES}>`)
+      .addFields({
+        name: `Rule ${number} - ${text}`,
+        value: description,
+      })
       .setFooter({
         text: `TryHackMe Rules`,
         iconURL: "https://assets.tryhackme.com/img/favicon.png",
       })
       .setTimestamp();
 
-    await interaction.reply({ embeds: [embed] });
+    const messageContent = mention ? `${mention}` : "";
+
+    await interaction.reply({ embeds: [embed], content: messageContent });
   },
 };
