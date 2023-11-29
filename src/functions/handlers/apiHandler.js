@@ -7,6 +7,9 @@ const API_LEADERBOARD = "https://tryhackme.com/api/leaderboards";
 const API_STATS = "https://tryhackme.com/api/site-stats";
 const API_HACKTIVITIES = "https://tryhackme.com/api/hacktivities";
 const API_USER = "https://tryhackme.com/api/discord/user/";
+const API_GET_ARTICLES = "https://api.intercom.io/articles";
+const API_SEARCH_ARTICLES = "https://api.intercom.io/articles/search";
+const API_GET_ARTICLE_ID = "";
 
 module.exports = (client) => {
   client.handleAPI = {
@@ -52,6 +55,66 @@ module.exports = (client) => {
       try {
         const response = await axios.get(API_HACKTIVITIES + query);
         return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    get_articles: async () => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${process.env.INTERCOM_TOKEN}`,
+            "Intercom-Version": "2.10",
+          },
+        };
+
+        const response = await axios.get(API_ARTICLES, config);
+
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    get_article_by_id: async (id) => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${process.env.INTERCOM_TOKEN}`,
+            "Intercom-Version": "2.10",
+          },
+        };
+
+        const response = await axios.get(API_ARTICLES, config);
+
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    get_article_by_phrase: async (phrase) => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${process.env.INTERCOM_TOKEN}`,
+            "Intercom-Version": "2.10",
+          },
+        };
+
+        const response = await axios.get(
+          API_SEARCH_ARTICLES + `?phrase=${phrase}`,
+          config
+        );
+
+        if (response.data.total_count == 0) {
+          return null;
+        }
+
+        const firstArticle = response.data.data.articles[0] || null;
+
+        return firstArticle;
       } catch (error) {
         console.error(error);
       }

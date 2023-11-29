@@ -25,6 +25,19 @@ module.exports = (client) => {
           }
           break;
 
+        case "dropdowns":
+          for (const file of componentFiles) {
+            try {
+              const dropdown = require(`../../components/${folder}/${file}`);
+              client.dropdowns.set(dropdown.data.id, dropdown);
+              table.addRow(file, "✅", "Dropdown");
+            } catch (err) {
+              console.error(`Error loading button component ${file}:`, err);
+              table.addRow(file, "❌", "Dropdown");
+            }
+          }
+          break;
+
         default:
           break;
       }

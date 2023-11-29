@@ -45,9 +45,12 @@ module.exports = {
           ephemeral: true,
         });
       }
-    } else if (interaction.isSelectMenu()) {
+    } else if (interaction.isStringSelectMenu()) {
       const { customId } = interaction;
       const dropdown = client.dropdowns.get(customId);
+
+      console.log(client.dropdowns);
+      console.log(customId);
 
       if (!dropdown) {
         console.error(`No dropdown found with ID: ${customId}`);
@@ -65,6 +68,19 @@ module.exports = {
           content: "An error occurred while handling this dropdown.",
           ephemeral: true,
         });
+      }
+    } else if (
+      interaction.type === InteractionType.ApplicationCommandAutocomplete
+    ) {
+      const { commandName } = interaction;
+      const command = client.commands.get(commandName);
+
+      if (!command) return;
+
+      try {
+        await command.autocomplete(interaction, client);
+      } catch (err) {
+        console.log(err);
       }
     } else if (interaction.type === InteractionType.ModalSubmit) {
       const { customId } = interaction;
