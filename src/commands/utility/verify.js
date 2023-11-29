@@ -17,26 +17,24 @@ module.exports = {
     ),
 
   async execute(interaction, client) {
+    await interaction.deferReply({ ephemeral: true });
+
     const token = interaction.options.getString("token");
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
     const discordId = interaction.user.id;
 
-    // Check if the user is already verified
     let userDiscordProfile = await UserProfile.findOne({ discordId });
     if (userDiscordProfile && userDiscordProfile.token !== token) {
-      return interaction.reply({
+      return interaction.editReply({
         content:
           "Your Discord account is already linked with a token. If you wish to update your token, please contact a moderator.",
-        ephemeral: true,
       });
     }
 
-    // Check if the token is already in use by someone else
     let tokenProfile = await UserProfile.findOne({ token });
     if (tokenProfile && tokenProfile.discordId !== discordId) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "This token is already in use by another account.",
-        ephemeral: true,
       });
     }
 
@@ -44,19 +42,18 @@ module.exports = {
       .get_token_data(token)
       .catch((error) => {
         console.error("Received invalid data from the API:", error);
-        return interaction.reply({
+        return interaction.editReply({
           content:
             "Failed to verify your account. Please ensure your token is correct.",
-          ephemeral: true,
         });
       });
 
-    if (!userApiData || !userApiData.success)
-      return interaction.reply({
+    if (!userApiData || !userApiData.success) {
+      return interaction.editReply({
         content:
           "Failed to verify your account. Please ensure your token is correct.",
-        ephemeral: true,
       });
+    }
 
     let userProfile = userDiscordProfile || new UserProfile({ discordId });
     userProfile = updateUserProfile(userProfile, userApiData, token);
@@ -67,9 +64,8 @@ module.exports = {
       assignRoles(member, userProfile);
     }
 
-    await interaction.reply({
+    await interaction.editReply({
       content: "Your account has been updated and verified!",
-      ephemeral: true,
     });
   },
 };
