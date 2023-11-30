@@ -20,6 +20,7 @@ module.exports = {
   async execute(interaction, client) {
     await interaction.deferReply({});
 
+    const user = interaction.options.getUser("mention");
     const search = interaction.options.getString("search");
 
     if (search && search.length > 100) {
