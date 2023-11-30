@@ -122,7 +122,7 @@ module.exports = {
         description = "Looking to invite people to the Discord server?";
         break;
       case "blog":
-        text = "https://blog.tryhackme.com/";
+        text = "https://tryhackme.com/r/resources/blog";
         description = "Look at the awesome resources written by TryHackMe!";
         break;
       case "shop":

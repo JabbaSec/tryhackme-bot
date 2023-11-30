@@ -9,6 +9,12 @@ module.exports = {
         .setName("search")
         .setDescription("find an article by its title")
         .setRequired(true)
+    )
+    .addUserOption((option) =>
+      option
+        .setName("mention")
+        .setDescription("Optionally mention a user with the response.")
+        .setRequired(false)
     ),
 
   async execute(interaction, client) {
@@ -51,6 +57,8 @@ module.exports = {
         value: `${article.url}`,
       });
 
-    await interaction.editReply({ embeds: [embed] });
+    const messageContent = user ? `${user}` : "";
+
+    await interaction.editReply({ content: messageContent, embeds: [embed] });
   },
 };
