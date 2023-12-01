@@ -14,16 +14,18 @@ module.exports = {
 
   async execute(interaction, client) {
     const username = interaction.options.getString("username");
-    let ephemeralCheck = true;
 
     if (
       interaction.channel &&
       interaction.channel.id === process.env.BOT_COMMANDS
-    )
-      ephemeralCheck = false;
+    ) {
+      await interaction.deferReply({ ephemeral: false });
+    } else {
+      await interaction.deferReply({ ephemeral: true });
+    }
 
     if (username && username.length > 30) {
-      return await interaction.reply({
+      return await interaction.editReply({
         content:
           "Your input exceeds the username character limit. Please try again.",
         ephemeral: true,
@@ -37,7 +39,7 @@ module.exports = {
         userProfile.userRank == 0 ||
         userProfile.points === "undefined"
       ) {
-        return interaction.reply({
+        return interaction.editReply({
           content: "User not found.",
           ephemeral: true,
         });
@@ -68,13 +70,12 @@ module.exports = {
         )
         .setThumbnail(userProfile.avatar);
 
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [rankEmbed],
-        ephemeral: ephemeralCheck,
       });
     } catch (error) {
       console.error("Error in rank command:", error);
-      await interaction.reply({
+      await interaction.editReply({
         content: "An error occurred while processing your request.",
         ephemeral: true,
       });
