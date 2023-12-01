@@ -13,6 +13,15 @@ const API_GET_ARTICLE_ID = "";
 
 module.exports = (client) => {
   client.handleAPI = {
+    get_room_data: async (code) => {
+      try {
+        const response = await axios.get(API_ROOM + code);
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
     get_token_data: async (token) => {
       try {
         const response = await axios.get(API_TOKEN + token);

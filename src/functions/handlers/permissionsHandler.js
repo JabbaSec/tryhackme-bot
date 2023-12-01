@@ -1,6 +1,13 @@
 module.exports = (client) => {
-  client.checkPermissions = async (interaction, role) => {
+  client.checkPermissions = async (interaction, role, deffered) => {
     const member = interaction.member;
+    let deferred;
+
+    if (deffered === true) {
+      deferred = true;
+    } else {
+      deffered = false;
+    }
 
     if (!member) {
       await interaction.reply({
@@ -22,43 +29,76 @@ module.exports = (client) => {
         if (verified || moderator || admin || owner) {
           return true;
         } else {
-          await interaction.reply({
-            content: "You are not Verified.",
-            ephemeral: true,
-          });
-          return false;
+          if (deferred == false) {
+            await interaction.reply({
+              content: "You are not Verified.",
+              ephemeral: true,
+            });
+            return false;
+          } else {
+            await interaction.editReply({
+              content: "You are not Verified.",
+              ephemeral: true,
+            });
+            return false;
+          }
         }
 
       case "Moderator":
         if (moderator || admin || owner) {
           return true;
         } else {
-          await interaction.reply({
-            content: "You are not a Moderator.",
-            ephemeral: true,
-          });
-          return false;
+          if (deferred == false) {
+            await interaction.reply({
+              content: "You are not a Moderator.",
+              ephemeral: true,
+            });
+            return false;
+          } else {
+            await interaction.editReply({
+              content: "You are not an Moderator.",
+              ephemeral: true,
+            });
+            return false;
+          }
         }
 
       case "Administrator":
         if (admin || owner) {
           return true;
         } else {
-          await interaction.reply({
-            content: "You are not an Administrator.",
-            ephemeral: true,
-          });
-          return false;
+          if (deferred == false) {
+            await interaction.reply({
+              content: "You are not an Administrator.",
+              ephemeral: true,
+            });
+            return false;
+          } else {
+            await interaction.editReply({
+              content: "You are not an Administrator.",
+              ephemeral: true,
+            });
+            return false;
+          }
         }
 
       case "Owner":
         if (owner) {
           return true;
         } else {
-          await interaction.reply({
-            content: "You are not an Owner.",
-            empheral: true,
-          });
+          if (deferred == false) {
+            await interaction.reply({
+              content: "You are not an Owner.",
+              ephemeral: true,
+            });
+            return false;
+          } else {
+            await interaction.editReply({
+              content: "You are not an Owner.",
+              ephemeral: true,
+            });
+            return false;
+          }
         }
 
       default:
