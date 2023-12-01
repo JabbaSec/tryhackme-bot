@@ -3,7 +3,8 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("notifyme")
-    .setDescription("Toggle announcements notifications."),
+    .setDescription("Toggle announcements notifications.")
+    .setDMPermission(false),
 
   async execute(interaction, client) {
     try {
