@@ -14,6 +14,7 @@ module.exports = {
     ),
 
   async execute(interaction, client) {
+    return;
     await interaction.deferReply({
       ephemeral: false,
     });
@@ -32,7 +33,7 @@ module.exports = {
 
     console.log(room);
 
-    if (isSvgFile(room.data[code]image)) {
+    if (isSvgFile(room.image)) {
       sharp(room.data[code].image)
         .png()
         .toFile("recent_room_image.png", (err, info) => {
