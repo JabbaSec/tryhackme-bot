@@ -6,6 +6,7 @@ module.exports = (client) => {
 
     const statsApiData = await client.handleAPI.get_site_statistics();
     console.log(statsApiData);
+    console.log(guild.memberCount);
 
     client.channels.cache
       .get(process.env.THM_USERS)
