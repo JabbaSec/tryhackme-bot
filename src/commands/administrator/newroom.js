@@ -14,6 +14,7 @@ module.exports = {
     ),
 
   async execute(interaction, client) {
+    interaction.reply({ content: "This command is currently disabled" });
     return;
     await interaction.deferReply({
       ephemeral: false,
