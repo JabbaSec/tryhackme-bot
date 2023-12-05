@@ -8,13 +8,17 @@ module.exports = (client) => {
     console.log(statsApiData);
     console.log(guild.memberCount);
 
-    client.channels.cache
-      .get(process.env.THM_USERS)
-      .setName(`THM Users: ${statsApiData.totalUsers}`);
+    if (statsApiData.totalUsers) {
+      client.channels.cache
+        .get(process.env.THM_USERS)
+        .setName(`THM Users: ${statsApiData.totalUsers}`);
+    }
 
-    client.channels.cache
-      .get(process.env.THM_ROOMS)
-      .setName(`Total Rooms: ${statsApiData.publicRooms}`);
+    if (statsApiData.publicRooms) {
+      client.channels.cache
+        .get(process.env.THM_ROOMS)
+        .setName(`Total Rooms: ${statsApiData.publicRooms}`);
+    }
 
     client.channels.cache
       .get(process.env.DISCORD_USERS)
