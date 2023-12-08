@@ -8,13 +8,15 @@ module.exports = (client) => {
     console.log(statsApiData);
     console.log(guild.memberCount);
 
-    if (statsApiData.totalUsers !== "undefined") {
+    console.log(statsApiData);
+
+    if (statsApiData.totalUsers !== undefined) {
       client.channels.cache
         .get(process.env.THM_USERS)
         .setName(`THM Users: ${statsApiData.totalUsers}`);
     }
 
-    if (statsApiData.publicRooms !== "undefined") {
+    if (statsApiData.publicRooms !== undefined) {
       client.channels.cache
         .get(process.env.THM_ROOMS)
         .setName(`Total Rooms: ${statsApiData.publicRooms}`);
