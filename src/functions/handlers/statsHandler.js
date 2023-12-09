@@ -10,16 +10,22 @@ module.exports = (client) => {
 
     console.log(statsApiData);
 
-    if (statsApiData.totalUsers !== undefined) {
-      client.channels.cache
-        .get(process.env.THM_USERS)
-        .setName(`THM Users: ${statsApiData.totalUsers}`);
+    try {
+      if (statsApiData.totalUsers !== undefined) {
+        client.channels.cache
+          .get(process.env.THM_USERS)
+          .setName(`THM Users: ${statsApiData.totalUsers}`);
+      }
+    } catch (err) {
+      console.log("There was an issue with updating the total users.");
     }
 
-    if (statsApiData.publicRooms !== undefined) {
+    try {
       client.channels.cache
         .get(process.env.THM_ROOMS)
         .setName(`Total Rooms: ${statsApiData.publicRooms}`);
+    } catch (err) {
+      console.log("There was an issue with updating the public rooms.");
     }
 
     client.channels.cache
