@@ -20,6 +20,7 @@ client.buttons = new Collection();
 client.dropdowns = new Collection();
 
 client.commandArray = [];
+client.timerArray = [];
 
 const functionFolders = fs.readdirSync(`./src/functions`);
 for (const folder of functionFolders) {

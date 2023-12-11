@@ -8,8 +8,6 @@ module.exports = (client) => {
     console.log(statsApiData);
     console.log(guild.memberCount);
 
-    console.log(statsApiData);
-
     try {
       if (statsApiData.totalUsers !== undefined) {
         client.channels.cache
