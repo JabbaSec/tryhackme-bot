@@ -3,10 +3,10 @@ module.exports = (client) => {
     const member = interaction.member;
     let deferred;
 
-    if (deffered === true) {
+    if (deferred === true) {
       deferred = true;
     } else {
-      deffered = false;
+      deferred = false;
     }
 
     if (!member) {

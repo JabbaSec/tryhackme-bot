@@ -1,9 +1,22 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  PermissionFlagsBits,
+} = require("discord.js");
+
+const {
+  checkDate,
+  createTimer,
+  getTimeoutDuration,
+} = require("../../utils/timerUtils.js");
+
+const Giveaway = require("../../events/mongo/schema/GiveawaySchema");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("giveaway")
     .setDescription("Returns the API and Client latency")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("create")
@@ -100,28 +113,53 @@ module.exports = {
         )
     ),
   async execute(interaction, client) {
-    // defer
-    return;
+    const hasPermission = await client.checkPermissions(
+      interaction,
+      "Administrator"
+    );
+    if (!hasPermission) return;
 
-    const message = await interaction.deferReply({
-      fetchReply: true,
-    });
+    const subcommand = interaction.options.getSubcommand();
 
-    const pingEmbed = new EmbedBuilder()
-      .setTitle("Pong!")
-      .setThumbnail(client.user.displayAvatarURL())
-      .setTimestamp(Date.now())
-      .setFields(
-        {
-          name: "API Latency",
-          value: `${client.ws.ping}ms`,
-        },
-        {
-          name: "Client Ping",
-          value: `${message.createdTimestamp - interaction.createdTimestamp}ms`,
+    switch (subcommand) {
+      case "create":
+        const day = interaction.options.getInteger("day");
+        const month = interaction.options.getInteger("month");
+        const year = interaction.options.getInteger("year");
+        const time = interaction.options.getInteger("time");
+        const winners = interaction.options.getInteger("winners");
+        const description = interaction.options.getString("description");
+
+        const endDate = await checkDate(day, month, year, time);
+        if (!endDate) {
+          await interaction.reply("Invalid date provided.");
+          return;
         }
-      );
 
-    await interaction.editReply({ embeds: [pingEmbed] });
+        const duration = await getTimeoutDuration(endDate);
+        if (duration <= 0) {
+          await interaction.reply("The specified time is in the past.");
+          return;
+        }
+
+        const giveaway = await Giveaway.create({
+          endDate,
+          winners,
+          participants: [],
+        });
+
+        const timerCallback = () => {
+          console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
+        };
+
+        if (await createTimer(client, duration, timerCallback, giveaway._id)) {
+          await interaction.reply(`Giveaway created with ID ${giveaway._id}.`);
+        } else {
+          await interaction.reply("Failed to create a timer for the giveaway.");
+        }
+
+      default:
+        break;
+    }
   },
 };

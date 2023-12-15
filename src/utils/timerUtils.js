@@ -1,6 +1,5 @@
 async function checkDate(day, month, year, time) {
   try {
-    // Adjust month for JavaScript Date object (0-indexed)
     const adjustedMonth = month - 1;
 
     return new Date(year, adjustedMonth, day, time, 0);
@@ -10,16 +9,17 @@ async function checkDate(day, month, year, time) {
   }
 }
 
-async function createTimer(duration, callback) {
+async function createTimer(client, duration, callback, giveawayId) {
   try {
     if (duration > 0) {
       const timer = setTimeout(() => {
         callback();
-
-        client.timerArray = client.timerArray.filter((t) => t.id !== timer);
+        client.timerArray = client.timerArray.filter(
+          (t) => t.timerId !== timer
+        );
       }, duration);
 
-      client.timerArray.push({ id: timer, ...timerInfo });
+      client.timerArray.push({ timerId: timer, giveawayId: giveawayId });
 
       return true;
     } else {

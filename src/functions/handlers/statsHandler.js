@@ -26,9 +26,13 @@ module.exports = (client) => {
       console.log("There was an issue with updating the public rooms.");
     }
 
-    client.channels.cache
-      .get(process.env.DISCORD_USERS)
-      .setName(`Discord Users: ${guild.memberCount}`);
+    try {
+      client.channels.cache
+        .get(process.env.DISCORD_USERS)
+        .setName(`Discord Users: ${guild.memberCount}`);
+    } catch (err) {
+      console.log("There was an issue with updating the discord users.");
+    }
 
     console.log("Successfully updated the statistics");
   };

@@ -1,4 +1,8 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  PermissionFlagsBits,
+} = require("discord.js");
 
 const sharp = require("sharp");
 
@@ -6,6 +10,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("newroom")
     .setDescription("Returns the API and Client latency")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
     .addStringOption((option) =>
       option
         .setName("code")
@@ -14,6 +19,12 @@ module.exports = {
     ),
 
   async execute(interaction, client) {
+    const hasPermission = await client.checkPermissions(
+      interaction,
+      "Administrator"
+    );
+    if (!hasPermission) return;
+
     interaction.reply({ content: "This command is currently disabled" });
     return;
     await interaction.deferReply({
@@ -22,13 +33,6 @@ module.exports = {
 
     const code = interaction.options.getString("code");
     let svg;
-
-    const hasPermission = await client.checkPermissions(
-      interaction,
-      "Administrator",
-      true
-    );
-    if (!hasPermission) return;
 
     room = await client.handleAPI.get_room_data(code);
 
