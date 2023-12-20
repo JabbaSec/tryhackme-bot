@@ -2,6 +2,9 @@ const {
   SlashCommandBuilder,
   EmbedBuilder,
   PermissionFlagsBits,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } = require("discord.js");
 
 const {
@@ -156,6 +159,25 @@ module.exports = {
           await interaction.reply(`Giveaway created with ID ${giveaway._id}.`);
         } else {
           await interaction.reply("Failed to create a timer for the giveaway.");
+        }
+
+        const button = new ButtonBuilder()
+          .setCustomId("join-giveaway")
+          .setLabel("Join Giveaway")
+          .setStyle(ButtonStyle.Primary);
+
+        const loggingChannel = client.guilds.cache
+          .get(process.env.GUILD_ID)
+          .channels.cache.get(process.env.BOT_LOGGING);
+
+        if (loggingChannel) {
+          loggingChannel
+            .send({
+              components: [new ActionRowBuilder().addComponents(button)],
+            })
+            .catch((err) =>
+              console.log("[GIVEAWAY] Error with sending the create message.")
+            );
         }
 
       default:

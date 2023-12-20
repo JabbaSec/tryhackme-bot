@@ -16,7 +16,7 @@ module.exports = (client) => {
           for (const file of componentFiles) {
             try {
               const button = require(`../../components/${folder}/${file}`);
-              client.buttons.set(button.data.id, button);
+              client.buttons.set(button.data.name, button);
               table.addRow(file, "✅", "Button");
             } catch (err) {
               console.error(`Error loading button component ${file}:`, err);
