@@ -10,6 +10,10 @@ const GiveawaySchema = new mongoose.Schema({
     required: true,
     min: 1,
   },
+  messageId: {
+    type: String,
+    required: false,
+  },
   participants: [
     {
       type: String,

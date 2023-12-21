@@ -1,10 +1,9 @@
-const { ActivityType } = require("discord.js");
-
 const {
-  checkDate,
   createTimer,
   getTimeoutDuration,
 } = require("../../utils/timerUtils.js");
+
+const { giveawayEnd } = require("../../utils/giveawayUtils");
 
 const Giveaway = require("../mongo/schema/GiveawaySchema");
 
@@ -19,16 +18,15 @@ module.exports = {
 
     console.log("Checking for giveaways...");
 
-    // Fetch active giveaways
     const now = new Date();
     const activeGiveaways = await Giveaway.find({ endDate: { $gt: now } });
 
-    // Recreate timers for each active giveaway
     activeGiveaways.forEach(async (giveaway) => {
       const duration = await getTimeoutDuration(giveaway.endDate);
 
       if (duration > 0) {
-        const timerCallback = () => {
+        const timerCallback = async () => {
+          await giveawayEnd(client, giveaway._id, true);
           console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
         };
 

@@ -1,9 +1,28 @@
-async function giveawayEnd(id, announce) {
+const Giveaway = require("../events/mongo/schema/GiveawaySchema");
+
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+
+async function giveawayEnd(client, id, announce) {
   if (!announce) return;
 
   try {
     const giveaway = await Giveaway.findById(id);
     if (!giveaway) throw new Error("Giveaway not found");
+
+    const channel = await client.channels.fetch(process.env.BOT_LOGGING);
+    const message = await channel.messages.fetch(giveaway.messageId);
+
+    console.log(1);
+
+    const disabledButton = new ButtonBuilder()
+      .setCustomId("join-giveaway")
+      .setLabel("Join Giveaway")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(true);
+
+    const newRow = new ActionRowBuilder().addComponents(disabledButton);
+
+    await message.edit({ components: [newRow] });
 
     const winners = selectRandomWinners(
       giveaway.participants,
@@ -12,7 +31,6 @@ async function giveawayEnd(id, announce) {
 
     const winnersMention = winners.map((winner) => `<@${winner}>`).join(", ");
 
-    const channel = await client.channels.fetch(process.env.ANNOUNCEMENTS);
     channel.send(
       `The giveaway is over!\n\nHere are the winners:\n${winnersMention}`
     );

@@ -144,40 +144,53 @@ module.exports = {
           await interaction.reply("The specified time is in the past.");
           return;
         }
-
-        const giveaway = await Giveaway.create({
-          endDate,
-          winners,
-          participants: [],
-        });
-
-        const timerCallback = () => {
-          console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
-        };
-
-        if (await createTimer(client, duration, timerCallback, giveaway._id)) {
-          await interaction.reply(`Giveaway created with ID ${giveaway._id}.`);
-        } else {
-          await interaction.reply("Failed to create a timer for the giveaway.");
-        }
+        const loggingChannel = client.guilds.cache
+          .get(process.env.GUILD_ID)
+          .channels.cache.get(process.env.BOT_LOGGING);
 
         const button = new ButtonBuilder()
           .setCustomId("join-giveaway")
           .setLabel("Join Giveaway")
           .setStyle(ButtonStyle.Primary);
 
-        const loggingChannel = client.guilds.cache
-          .get(process.env.GUILD_ID)
-          .channels.cache.get(process.env.BOT_LOGGING);
+        const giveawayMessage = await loggingChannel
+          .send({
+            content: "Giveaway description here",
+            components: [new ActionRowBuilder().addComponents(button)],
+          })
+          .catch((err) => {
+            console.error("[GIVEAWAY] Error sending giveaway message:", err);
+            return;
+          });
 
-        if (loggingChannel) {
-          loggingChannel
-            .send({
-              components: [new ActionRowBuilder().addComponents(button)],
-            })
-            .catch((err) =>
-              console.log("[GIVEAWAY] Error with sending the create message.")
-            );
+        if (!giveawayMessage) {
+          await interaction.reply("Failed to send giveaway message.");
+          return;
+        }
+
+        const messageId = giveawayMessage.id;
+
+        const giveaway = await Giveaway.create({
+          endDate,
+          winners,
+          participants: [],
+          messageId: messageId,
+        });
+
+        const timerCallback = () => {
+          console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
+
+          const disabledButton = new ButtonBuilder()
+            .setCustomId("join-giveaway")
+            .setLabel("Your Button Label")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(true);
+        };
+
+        if (await createTimer(client, duration, timerCallback, giveaway._id)) {
+          await interaction.reply(`Giveaway created with ID ${giveaway._id}.`);
+        } else {
+          await interaction.reply("Failed to create a timer for the giveaway.");
         }
 
       default:
