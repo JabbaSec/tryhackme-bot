@@ -15,6 +15,8 @@ const {
 
 const Giveaway = require("../../events/mongo/schema/GiveawaySchema");
 
+const { giveawayEnd } = require("../../utils/giveawayUtils");
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("giveaway")
@@ -144,16 +146,16 @@ module.exports = {
           await interaction.reply("The specified time is in the past.");
           return;
         }
-        const loggingChannel = client.guilds.cache
+        const announcementChannel = client.guilds.cache
           .get(process.env.GUILD_ID)
-          .channels.cache.get(process.env.BOT_LOGGING);
+          .channels.cache.get(process.env.COMMUNITY_ANNOUNCEMENTS);
 
         const button = new ButtonBuilder()
           .setCustomId("join-giveaway")
           .setLabel("Join Giveaway")
           .setStyle(ButtonStyle.Primary);
 
-        const giveawayMessage = await loggingChannel
+        const giveawayMessage = await announcementChannel
           .send({
             content: "Giveaway description here",
             components: [new ActionRowBuilder().addComponents(button)],
@@ -177,14 +179,9 @@ module.exports = {
           messageId: messageId,
         });
 
-        const timerCallback = () => {
+        const timerCallback = async () => {
+          await giveawayEnd(client, giveaway._id, true);
           console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
-
-          const disabledButton = new ButtonBuilder()
-            .setCustomId("join-giveaway")
-            .setLabel("Your Button Label")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(true);
         };
 
         if (await createTimer(client, duration, timerCallback, giveaway._id)) {

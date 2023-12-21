@@ -9,10 +9,10 @@ async function giveawayEnd(client, id, announce) {
     const giveaway = await Giveaway.findById(id);
     if (!giveaway) throw new Error("Giveaway not found");
 
-    const channel = await client.channels.fetch(process.env.BOT_LOGGING);
+    const channel = await client.channels.fetch(
+      process.env.COMMUNITY_ANNOUNCEMENTS
+    );
     const message = await channel.messages.fetch(giveaway.messageId);
-
-    console.log(1);
 
     const disabledButton = new ButtonBuilder()
       .setCustomId("join-giveaway")
