@@ -128,5 +128,22 @@ module.exports = (client) => {
         console.error(error);
       }
     },
+
+    get_ollie_picture: async () => {
+      try {
+        const response = await axios.get("https://ollie.muirlandoracle.co.uk");
+        const data = response.data;
+
+        if (data.status === "success") {
+          return data.message;
+        } else {
+          console.error("Picture retrieval failed: ", data);
+          return null;
+        }
+      } catch (error) {
+        console.error("Error fetching picture: ", error);
+        return null;
+      }
+    },
   };
 };
