@@ -23,8 +23,7 @@ module.exports = {
       })
       .setFooter({
         text: "Ollie Unix Montgomery - Rest in Peace, 5th of January, 2023",
-      })
-      .setTimestamp(Date.now());
+      });
 
     await interaction.editReply({ embeds: [ollieEmbed] });
   },
