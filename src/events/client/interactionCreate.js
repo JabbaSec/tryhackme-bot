@@ -18,7 +18,7 @@ module.exports = {
       try {
         await command.execute(interaction, client);
       } catch (error) {
-        console.error(`Error executing command ${commandName}:`, error);
+        console.log(`Error executing command ${commandName}:`, error);
         interaction.reply({
           content: "An error occurred while executing this command.",
           ephemeral: true,
@@ -29,7 +29,7 @@ module.exports = {
       const button = client.buttons.get(customId);
 
       if (!button) {
-        console.error(`No button found with ID: ${customId}`);
+        console.log(`No button found with ID: ${customId}`);
         return interaction.reply({
           content: "Button interaction failed.",
           ephemeral: true,
@@ -39,7 +39,7 @@ module.exports = {
       try {
         await button.execute(interaction, client);
       } catch (error) {
-        console.error(`Error executing button ${customId}:`, error);
+        console.log(`Error executing button ${customId}:`, error);
         interaction.reply({
           content: "An error occurred while handling this button.",
           ephemeral: true,
@@ -53,7 +53,7 @@ module.exports = {
       console.log(customId);
 
       if (!dropdown) {
-        console.error(`No dropdown found with ID: ${customId}`);
+        console.log(`No dropdown found with ID: ${customId}`);
         return interaction.reply({
           content: "Dropdown interaction failed.",
           ephemeral: true,
@@ -63,7 +63,7 @@ module.exports = {
       try {
         await dropdown.execute(interaction, client);
       } catch (error) {
-        console.error(`Error executing dropdown ${customId}:`, error);
+        console.log(`Error executing dropdown ${customId}:`, error);
         interaction.reply({
           content: "An error occurred while handling this dropdown.",
           ephemeral: true,
@@ -87,7 +87,7 @@ module.exports = {
       const modal = client.modals.get(customId);
 
       if (!modal) {
-        console.error(`No modal found with ID: ${customId}`);
+        console.log(`No modal found with ID: ${customId}`);
         return interaction.reply({
           content: "Modal interaction failed.",
           ephemeral: true,
@@ -97,7 +97,7 @@ module.exports = {
       try {
         await modal.execute(interaction, client);
       } catch (error) {
-        console.error(`Error executing modal ${customId}:`, error);
+        console.log(`Error executing modal ${customId}:`, error);
         interaction.reply({
           content: "An error occurred while handling this modal.",
           ephemeral: true,
@@ -117,7 +117,7 @@ module.exports = {
       try {
         await contextCommand.execute(interaction, client);
       } catch (error) {
-        console.error(`Error executing context command ${commandName}:`, error);
+        console.log(`Error executing context command ${commandName}:`, error);
         interaction.reply({
           content: "An error occurred while executing this context command.",
           ephemeral: true,

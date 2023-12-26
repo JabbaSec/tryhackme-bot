@@ -15,7 +15,7 @@ module.exports = {
 
     const ollieEmbed = new EmbedBuilder()
       .setTitle("Ollie")
-      .setColor("#5865F2") // Discord's blurple color
+      .setColor("#5865F2")
       .setImage(pictureUrl)
       .setAuthor({
         name: client.user.username,
