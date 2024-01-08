@@ -1,17 +1,13 @@
 const {
   SlashCommandBuilder,
-  EmbedBuilder,
   PermissionFlagsBits,
+  EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
 
-const {
-  checkDate,
-  createTimer,
-  getTimeoutDuration,
-} = require("../../utils/timerUtils.js");
+const { checkDate } = require("../../utils/timerUtils.js");
 
 const Giveaway = require("../../events/mongo/schema/GiveawaySchema");
 
@@ -56,22 +52,14 @@ module.exports = {
             .setDescription("Amount of winners to be chosen.")
             .setRequired(true)
         )
-        .addStringOption((option) =>
-          option
-            .setName("description")
-            .setDescription(
-              "Add optional text to go along with giveaway. Use \n for a newline."
-            )
-            .setRequired(false)
-        )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("stop")
         .setDescription("Reroll the winners.")
-        .addIntegerOption((option) =>
+        .addStringOption((option) =>
           option
-            .setName("id")
+            .setName("stop-id")
             .setDescription("id of the giveaway you want to stop")
             .setRequired(true)
         )
@@ -88,9 +76,9 @@ module.exports = {
       subcommand
         .setName("stats")
         .setDescription("Reroll the winners.")
-        .addIntegerOption((option) =>
+        .addStringOption((option) =>
           option
-            .setName("id")
+            .setName("stats-id")
             .setDescription("id of the giveaway you want to view")
             .setRequired(true)
         )
@@ -104,7 +92,7 @@ module.exports = {
       subcommand
         .setName("reroll")
         .setDescription("Reroll the winners.")
-        .addIntegerOption((option) =>
+        .addStringOption((option) =>
           option
             .setName("id")
             .setDescription("id of the giveaway you want to view")
@@ -133,36 +121,31 @@ module.exports = {
         const year = interaction.options.getInteger("year");
         const time = interaction.options.getInteger("time");
         const winners = interaction.options.getInteger("winners");
-        const description = interaction.options.getString("description");
+        const description = "Click below to join the giveaway!";
 
         const endDate = await checkDate(day, month, year, time);
-        if (!endDate) {
+        if (!endDate || endDate < new Date()) {
           await interaction.reply("Invalid date provided.");
           return;
         }
-
-        const duration = await getTimeoutDuration(endDate);
-        if (duration <= 0) {
-          await interaction.reply("The specified time is in the past.");
-          return;
-        }
-        const announcementChannel = client.guilds.cache
-          .get(process.env.GUILD_ID)
-          .channels.cache.get(process.env.COMMUNITY_ANNOUNCEMENTS);
 
         const button = new ButtonBuilder()
           .setCustomId("join-giveaway")
           .setLabel("Join Giveaway")
           .setStyle(ButtonStyle.Primary);
 
+        const announcementChannel = client.guilds.cache
+          .get(process.env.GUILD_ID)
+          .channels.cache.get(process.env.COMMUNITY_ANNOUNCEMENTS);
+
         const giveawayMessage = await announcementChannel
           .send({
-            content: "Giveaway description here",
+            content: description,
             components: [new ActionRowBuilder().addComponents(button)],
           })
           .catch((err) => {
             console.error("[GIVEAWAY] Error sending giveaway message:", err);
-            return;
+            return null;
           });
 
         if (!giveawayMessage) {
@@ -170,25 +153,107 @@ module.exports = {
           return;
         }
 
-        const messageId = giveawayMessage.id;
-
-        const giveaway = await Giveaway.create({
+        await Giveaway.create({
           endDate,
           winners,
           participants: [],
-          messageId: messageId,
+          messageId: giveawayMessage.id,
+          concluded: false,
         });
 
-        const timerCallback = async () => {
-          await giveawayEnd(client, giveaway._id, true);
-          console.log(`Giveaway ended for giveaway ID ${giveaway._id}`);
-        };
+        await interaction.reply(
+          `Giveaway created and will end on ${endDate.toLocaleString()}.`
+        );
+        break;
 
-        if (await createTimer(client, duration, timerCallback, giveaway._id)) {
-          await interaction.reply(`Giveaway created with ID ${giveaway._id}.`);
-        } else {
-          await interaction.reply("Failed to create a timer for the giveaway.");
+      case "stop":
+        const stopId = interaction.options.getString("stop-id");
+        const announce = interaction.options.getBoolean("announce");
+
+        await giveawayEnd(client, stopId, announce);
+        console.log(`Giveaway ended for giveaway ID: ${stopId}`);
+
+        await interaction.reply({
+          content: `Successfully ended giveaway: ${stopId}`,
+        });
+
+        break;
+
+      case "view":
+        const now = new Date();
+        const activeGiveaways = await Giveaway.find({
+          endDate: { $gte: now },
+          concluded: { $ne: true },
+        }).sort({ endDate: 1 });
+
+        const giveawayFields = activeGiveaways.map((g, index) => ({
+          name: `Giveaway #${index + 1}`,
+          value: `Ends on: ${g.endDate.toLocaleString()}\nID: ${g._id}`,
+        }));
+
+        if (giveawayFields.length === 0) {
+          await interaction.reply("No active giveaways found.");
+          break;
         }
+
+        await client.paginationEmbed(interaction, giveawayFields, {
+          title: "Active Giveaways",
+          color: "#8AC7DB",
+          maxPerPage: 5,
+        });
+        break;
+
+      case "stats":
+        const statsId = interaction.options.getString("stats-id");
+        let giveawayStats;
+
+        try {
+          giveawayStats = await Giveaway.findById(statsId);
+          if (!giveawayStats) {
+            await interaction.reply(`No giveaway found with ID: ${statsId}`);
+            break;
+          }
+
+          const statsEmbed = new EmbedBuilder()
+            .setColor("#8AC7DB")
+            .setTitle(`Giveaway Stats - ID: ${statsId}`)
+            .addFields(
+              {
+                name: "End Date",
+                value: giveawayStats.endDate.toLocaleString(),
+                inline: true,
+              },
+              {
+                name: "Total Winners",
+                value: giveawayStats.winners.toString(),
+                inline: true,
+              },
+              {
+                name: "Message ID",
+                value: giveawayStats.messageId || "Not Available",
+                inline: true,
+              },
+              {
+                name: "Total Participants",
+                value: giveawayStats.participants.length.toString(),
+                inline: true,
+              }
+            );
+
+          await interaction.reply({ embeds: [statsEmbed] });
+        } catch (err) {
+          await interaction.reply({
+            content: `An error occurred while retrieving the giveaway: ${err.message}. Please check the ID and try again.`,
+          });
+          break;
+        }
+        break;
+
+      case "reroll":
+        await interaction.reply({
+          content: `This command is currently disabled. Please speak to Jabba to manually reroll the participants.`,
+        });
+        break;
 
       default:
         break;

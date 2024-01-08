@@ -4,6 +4,9 @@ const { Client, Collection, GatewayIntentBits } = require("discord.js");
 
 const fs = require("fs");
 const mongoose = require("mongoose");
+const cron = require("node-cron");
+
+const { checkGiveaways } = require("../src/utils/timerUtils");
 
 const client = new Client({
   intents: [
@@ -44,6 +47,11 @@ client
       client.handleCommands();
       client.handleComponents();
       client.roleSync(client);
+
+      cron.schedule("* * * * *", async () => {
+        console.log("Cron job triggered");
+        await checkGiveaways(client);
+      });
 
       // Sync roles every 24 hours
       setInterval(() => {

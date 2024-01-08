@@ -1,3 +1,7 @@
+const Giveaway = require("../events/mongo/schema/GiveawaySchema");
+
+const { giveawayEnd } = require("../utils/giveawayUtils");
+
 async function checkDate(day, month, year, time) {
   try {
     const adjustedMonth = month - 1;
@@ -5,28 +9,6 @@ async function checkDate(day, month, year, time) {
     return new Date(year, adjustedMonth, day, time, 0);
   } catch (error) {
     console.log("There was an error checking the date:", error);
-    return false;
-  }
-}
-
-async function createTimer(client, duration, callback, giveawayId) {
-  try {
-    if (duration > 0) {
-      const timer = setTimeout(() => {
-        callback();
-        client.timerArray = client.timerArray.filter(
-          (t) => t.timerId !== timer
-        );
-      }, duration);
-
-      client.timerArray.push({ timerId: timer, giveawayId: giveawayId });
-
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error("Error occurred while setting up the timer:", error);
     return false;
   }
 }
@@ -44,21 +26,28 @@ async function getTimeoutDuration(futureDate) {
   }
 }
 
-async function stopTimer(client, timerInfo) {
-  const timer = client.timerArray.find(
-    (t) => t.someProperty === timerInfo.someProperty
-  );
-  if (timer) {
-    clearTimeout(timer.id);
-    client.timerArray = client.timerArray.filter((t) => t.id !== timer.id);
-    return true;
+async function checkGiveaways(client) {
+  try {
+    const now = new Date();
+    const giveaways = await Giveaway.find({
+      endDate: { $lte: now },
+      concluded: { $ne: true },
+    });
+
+    giveaways.forEach(async (giveaway) => {
+      await giveawayEnd(client, giveaway._id, true);
+      console.log(`Giveaway ended for giveaway ID: ${giveaway._id}`);
+      // Update the giveaway as concluded
+      giveaway.concluded = true;
+      await giveaway.save();
+    });
+  } catch (err) {
+    console.error("Error checking giveaways:", err);
   }
-  return false;
 }
 
 module.exports = {
   checkDate,
-  createTimer,
   getTimeoutDuration,
-  stopTimer,
+  checkGiveaways,
 };

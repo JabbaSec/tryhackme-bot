@@ -14,6 +14,11 @@ const GiveawaySchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  concluded: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   participants: [
     {
       type: String,
