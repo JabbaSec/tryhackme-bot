@@ -49,7 +49,6 @@ client
       client.roleSync(client);
 
       cron.schedule("* * * * *", async () => {
-        console.log("Cron job triggered");
         await checkGiveaways(client);
       });
 

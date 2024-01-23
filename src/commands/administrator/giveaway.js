@@ -121,7 +121,7 @@ module.exports = {
         const year = interaction.options.getInteger("year");
         const time = interaction.options.getInteger("time");
         const winners = interaction.options.getInteger("winners");
-        const description = "Click below to join the giveaway!";
+        const description = `Click below to join the giveaway! <@&${process.env.ANNOUNCEMENTS_ROLE_ID}>`;
 
         const endDate = await checkDate(day, month, year, time);
         if (!endDate || endDate < new Date()) {
