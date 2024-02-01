@@ -250,9 +250,33 @@ module.exports = {
         break;
 
       case "reroll":
-        await interaction.reply({
-          content: `This command is currently disabled. Please speak to Jabba to manually reroll the participants.`,
-        });
+        const rerollId = interaction.options.getString("id");
+        const amountToReroll = interaction.options.getInteger("amount");
+
+        const giveawayToReroll = await Giveaway.findById(rerollId);
+
+        if (!giveawayToReroll) {
+          await interaction.reply(`No giveaway found with ID: ${rerollId}`);
+          break;
+        }
+
+        if (amountToReroll <= 0 || amountToReroll > giveawayToReroll.winners) {
+          await interaction.reply("Invalid amount to reroll.");
+          break;
+        }
+
+        const shuffledParticipants = [...giveawayToReroll.participants].sort(
+          () => 0.5 - Math.random()
+        );
+        const newWinners = shuffledParticipants.slice(0, amountToReroll);
+
+        var newWinnersMessage = `New winners for giveaway ID: ${rerollId}\n\n`;
+        for (const winner of newWinners) {
+          newWinnersMessage += `<@${winner}>\n`;
+        }
+
+        await interaction.reply(newWinnersMessage);
+
         break;
 
       default:
