@@ -37,7 +37,9 @@ module.exports = {
       if (
         !userProfile ||
         userProfile.userRank == 0 ||
-        userProfile.points === "undefined"
+        userProfile.userRank == undefined ||
+        userProfile.points === "undefined" ||
+        userProfile.points === undefined
       ) {
         return interaction.editReply({
           content: "User not found.",
