@@ -7,6 +7,7 @@ const ProfileSchema = new mongoose.Schema({
   subscribed: Boolean,
   level: String,
   avatar: String,
+  certifications: [String],
 });
 
 module.exports = mongoose.model("Profile", ProfileSchema);

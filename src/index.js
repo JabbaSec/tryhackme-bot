@@ -39,25 +39,29 @@ for (const folder of functionFolders) {
   mongoose.connect(`${process.env.MONGODB_URI}`).catch(console.error);
 })();
 
-client
-  .login(process.env.BOT_TOKEN)
-  .then(() => {
-    try {
-      client.handleEvents();
-      client.handleCommands();
-      client.handleComponents();
-      client.roleSync(client);
+module.exports = client;
 
-      cron.schedule("* * * * *", async () => {
-        await checkGiveaways(client);
-      });
-
-      // Sync roles every 24 hours
-      setInterval(() => {
+if (require.main == module) {
+  client
+    .login(process.env.BOT_TOKEN)
+    .then(() => {
+      try {
+        client.handleEvents();
+        client.handleCommands();
+        client.handleComponents();
         client.roleSync(client);
-      }, 86400000); // 86,400,000
-    } catch (err) {
-      console.error(err);
-    }
-  })
-  .catch((err) => console.log(err));
+
+        cron.schedule("* * * * *", async () => {
+          await checkGiveaways(client);
+        });
+
+        // Sync roles every 24 hours
+        setInterval(() => {
+          client.roleSync(client);
+        }, 86400000); // 86,400,000
+      } catch (err) {
+        console.error(err);
+      }
+    })
+    .catch((err) => console.log(err));
+}

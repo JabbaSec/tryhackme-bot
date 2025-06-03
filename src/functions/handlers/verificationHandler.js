@@ -34,8 +34,8 @@ module.exports = (client) => {
         );
       }
     }
-    console.log("Role sync finished!");
 
+    console.log("Role sync finished!");
     client.updateStats(client);
   };
 };
@@ -45,11 +45,29 @@ function isValidApiData(data) {
 }
 
 function updateProfileFromApiData(profile, apiData) {
-  const { username, subscribed, usersRank, points, level, avatar } = apiData;
+  const {
+    username,
+    subscribed,
+    usersRank,
+    points,
+    level,
+    avatar,
+    certifications,
+  } = apiData;
+
   profile.username = username;
   profile.subscribed = subscribed === 1;
   profile.level = level;
   profile.avatar = avatar;
+
+  if (certifications && typeof certifications === "object") {
+    const newCerts = Object.keys(certifications).filter(
+      (key) => certifications[key]
+    );
+    profile.certifications = newCerts;
+  } else {
+    profile.certifications = [];
+  }
 
   return profile.isModified();
 }
