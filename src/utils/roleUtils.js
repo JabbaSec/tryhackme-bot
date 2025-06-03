@@ -23,59 +23,59 @@ const certificationToRoleMap = {
   pt1: process.env.PT1_ROLE_ID,
 };
 
-function assignRoles(member, apiData) {
+async function assignRoles(member, apiData) {
   // Level roles
   if (apiData.level) {
     const roleToAdd = getRolesForLevel(apiData.level);
-    member.roles.add(process.env.VERIFIED_ROLE_ID);
+    await member.roles.add(process.env.VERIFIED_ROLE_ID);
 
     for (const role of Object.values(levelToRoleMap)) {
       if (member.roles.cache.has(role) && role !== roleToAdd) {
-        member.roles.remove(role);
+        await member.roles.remove(role);
       }
     }
 
     if (roleToAdd) {
-      member.roles.add(roleToAdd);
+      await member.roles.add(roleToAdd);
     }
   }
 
   // Subscriber role
   if (apiData.subscribed == 1) {
-    member.roles.add(process.env.SUBSCRIBER_ROLE_ID);
+    await member.roles.add(process.env.SUBSCRIBER_ROLE_ID);
   } else {
-    member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
+    await member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
   }
 
   // Certification roles
   if (apiData.certifications) {
     for (const [cert, roleId] of Object.entries(certificationToRoleMap)) {
       const hasCertInApi = !!apiData.certifications[cert];
-      const hasRole = member.roles.cache.has(roleId);
+      const hasRole = await member.roles.cache.has(roleId);
 
       if (hasCertInApi && !hasRole) {
-        member.roles.add(roleId);
+        await member.roles.add(roleId);
 
         try {
-          member.send(
+          await member.send(
             `🎉 You’ve just been awarded the **${cert.toUpperCase()}** certification role on the TryHackMe Discord! Great job!`
           );
         } catch (err) {
-          console.warn(
+          console.log(
             `Could not DM ${
               member.user.tag
             } about gaining ${cert.toUpperCase()} role.`
           );
         }
       } else if (!hasCertInApi && hasRole) {
-        member.roles.remove(roleId);
+        await member.roles.remove(roleId);
 
         try {
-          member.send(
+          await member.send(
             `Your **${cert.toUpperCase()}** certification role has been removed on the TryHackMe Discord. If you believe this is an error, please re-link your account or contact jabba.sh.`
           );
         } catch (err) {
-          console.warn(
+          console.log(
             `Could not DM ${
               member.user.tag
             } about losing ${cert.toUpperCase()} role.`
@@ -86,31 +86,31 @@ function assignRoles(member, apiData) {
   }
 }
 
-function removeRoles(member) {
+async function removeRoles(member) {
   // Remove verified role
-  member.roles.remove(process.env.VERIFIED_ROLE_ID);
+  await member.roles.remove(process.env.VERIFIED_ROLE_ID);
 
   // Remove subscriber role
-  member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
+  await member.roles.remove(process.env.SUBSCRIBER_ROLE_ID);
 
   // Remove level roles
   for (const role of Object.values(levelToRoleMap)) {
     if (member.roles.cache.has(role)) {
-      member.roles.remove(role);
+      await member.roles.remove(role);
     }
   }
 
   // Remove certification roles
   for (const [cert, roleId] of Object.entries(certificationToRoleMap)) {
     if (member.roles.cache.has(roleId)) {
-      member.roles.remove(roleId);
+      await member.roles.remove(roleId);
 
       try {
-        member.send(
+        await member.send(
           `Your **${cert.toUpperCase()}** certification role has been removed on the TryHackMe Discord. If you believe this is an error, please re-link your account or contact jabba.sh.`
         );
       } catch (err) {
-        console.warn(
+        console.log(
           `Could not DM ${
             member.user.tag
           } about losing ${cert.toUpperCase()} role.`
