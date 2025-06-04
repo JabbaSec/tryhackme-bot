@@ -20,95 +20,62 @@ module.exports = {
     await interaction.deferReply({ ephemeral: true });
 
     const token = interaction.options.getString("token");
-    const discordId = interaction.user.id;
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
+    const discordId = interaction.user.id;
 
-    let existingProfile = await UserProfile.findOne({ discordId });
-
-    // Check if this user already linked with a different token
-    if (existingProfile && existingProfile.token !== token) {
+    let userDiscordProfile = await UserProfile.findOne({ discordId });
+    if (userDiscordProfile && userDiscordProfile.token !== token) {
       return interaction.editReply({
         content:
           "Your Discord account is already linked with a token. If you wish to update your token, please contact a moderator.",
       });
     }
 
-    // Check if token is already used by someone else
-    const duplicateTokenProfile = await UserProfile.findOne({ token });
-    if (
-      duplicateTokenProfile &&
-      duplicateTokenProfile.discordId !== discordId
-    ) {
+    let tokenProfile = await UserProfile.findOne({ token });
+    if (tokenProfile && tokenProfile.discordId !== discordId) {
       return interaction.editReply({
         content: "This token is already in use by another account.",
       });
     }
 
-    // Fetch API data
-    let userApiData;
-    try {
-      userApiData = await client.handleAPI.get_token_data(token);
-    } catch (error) {
-      console.error("Error calling get_token_data:", error);
+    const userApiData = await client.handleAPI
+      .get_token_data(token)
+      .catch((error) => {
+        console.error("Received invalid data from the API:", error);
+        return interaction.editReply({
+          content:
+            "Failed to verify your account. Please ensure your token is correct.",
+        });
+      });
+
+    if (!userApiData || !userApiData.success) {
       return interaction.editReply({
         content:
           "Failed to verify your account. Please ensure your token is correct.",
       });
     }
 
-    if (!isValidApiData(userApiData)) {
-      return interaction.editReply({
-        content:
-          "Failed to verify your account. Please ensure your token is correct.",
-      });
-    }
+    let userProfile = userDiscordProfile || new UserProfile({ discordId });
+    userProfile = updateUserProfile(userProfile, userApiData, token);
+    await userProfile.save().catch(console.error);
 
-    // Save profile
-    let userProfile = existingProfile || new UserProfile({ discordId });
-    const hasUpdated = updateProfileFromApiData(
-      userProfile,
-      userApiData,
-      token
-    );
-    if (hasUpdated) {
-      await userProfile.save().catch(console.error);
-    }
-
-    // Assign roles
     const member = await fetchMember(guild, discordId);
     if (member) {
-      await assignRoles(member, userApiData);
-    } else {
-      console.warn(`Could not fetch member for ${discordId}`);
+      assignRoles(member, userProfile);
     }
 
-    return interaction.editReply({
+    await interaction.editReply({
       content: "Your account has been updated and verified!",
     });
   },
 };
 
-function isValidApiData(data) {
-  return data && data.success;
-}
+function updateUserProfile(userProfile, userApiData, token) {
+  userProfile.username = userApiData.username;
+  userProfile.token = token;
+  userProfile.subscribed = userApiData.subscribed === 1;
+  userProfile.level = userApiData.level;
+  userProfile.avatar = userApiData.avatar;
 
-function updateProfileFromApiData(profile, apiData, token) {
-  const { username, subscribed, level, avatar, certifications } = apiData;
-
-  profile.username = username;
-  profile.token = token;
-  profile.subscribed = subscribed === 1;
-  profile.level = level;
-  profile.avatar = avatar;
-
-  if (certifications && typeof certifications === "object") {
-    const newCerts = Object.keys(certifications).filter(
-      (key) => certifications[key]
-    );
-    profile.certifications = newCerts;
-  } else {
-    profile.certifications = [];
-  }
-
-  return profile.isModified();
+  return userProfile;
 }
