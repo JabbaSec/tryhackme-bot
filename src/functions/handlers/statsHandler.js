@@ -2,6 +2,7 @@ const UserProfile = require("../../events/mongo/schema/ProfileSchema");
 
 module.exports = (client) => {
   client.updateStats = async () => {
+    console.log("Stats");
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
 
     const statsApiData = await client.handleAPI.get_site_statistics();
